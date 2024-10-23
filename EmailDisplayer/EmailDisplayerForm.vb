@@ -7,6 +7,7 @@ Public Class EmailDisplayerForm
 
     WithEvents dgMail As Outlook.MailItem
 
+    Private sentOnlyToMe As Outlook.Folder
     Private sentToMe As Outlook.Folder
     Private vipFolder As Outlook.Folder
     Private sentToMyGroup As Outlook.Folder
@@ -30,6 +31,10 @@ Public Class EmailDisplayerForm
         For Each curFolder As Outlook.Folder In Me.olNs.DefaultStore.GetSearchFolders
 
             If curFolder.FolderPath.Equals(searchFolderPrefix & "Sent Straight to me") Then
+                Me.sentOnlyToMe = curFolder
+            End If
+
+            If curFolder.FolderPath.Equals(searchFolderPrefix & "Sent to me") Then
                 Me.sentToMe = curFolder
             End If
 
@@ -72,12 +77,23 @@ Public Class EmailDisplayerForm
     Sub OrganizeEmail()
         Dim threadMap As New Dictionary(Of String, Thread)()
 
+        ToolStripStatusLabel.Text = "Loading items from " & Me.sentOnlyToMe.FolderPath
+        For Each curItem In Me.sentOnlyToMe.Items
+            Dim conversationIdx = curItem.ConversationIndex.Substring(0, 44)
+            If Not threadMap.ContainsKey(conversationIdx) Then
+
+                Dim thread As New Thread(conversationIdx, 2)
+                threadMap.Add(conversationIdx, thread)
+                ThreadToolStripStatusLabel.Text = "Thread " & (Me.threadIdx + 1) & " of " & threadMap.Count
+            End If
+        Next
+
         ToolStripStatusLabel.Text = "Loading items from " & Me.sentToMe.FolderPath
         For Each curItem In Me.sentToMe.Items
             Dim conversationIdx = curItem.ConversationIndex.Substring(0, 44)
             If Not threadMap.ContainsKey(conversationIdx) Then
 
-                Dim thread As New Thread(conversationIdx, 1)
+                Dim thread As New Thread(conversationIdx, 3)
                 threadMap.Add(conversationIdx, thread)
                 ThreadToolStripStatusLabel.Text = "Thread " & (Me.threadIdx + 1) & " of " & threadMap.Count
             End If
@@ -88,7 +104,7 @@ Public Class EmailDisplayerForm
             Dim conversationIdx = curItem.ConversationIndex.Substring(0, 44)
             If Not threadMap.ContainsKey(conversationIdx) Then
 
-                Dim thread As New Thread(conversationIdx, 2)
+                Dim thread As New Thread(conversationIdx, 4)
                 threadMap.Add(conversationIdx, thread)
                 ThreadToolStripStatusLabel.Text = "Thread " & (Me.threadIdx + 1) & " of " & threadMap.Count
             End If
@@ -99,7 +115,7 @@ Public Class EmailDisplayerForm
             Dim conversationIdx = curItem.ConversationIndex.Substring(0, 44)
             If Not threadMap.ContainsKey(conversationIdx) Then
 
-                Dim thread As New Thread(conversationIdx, 3)
+                Dim thread As New Thread(conversationIdx, 5)
                 threadMap.Add(conversationIdx, thread)
                 ThreadToolStripStatusLabel.Text = "Thread " & (Me.threadIdx + 1) & " of " & threadMap.Count
             End If
@@ -110,7 +126,7 @@ Public Class EmailDisplayerForm
             Dim conversationIdx = curItem.ConversationIndex.Substring(0, 44)
             If Not threadMap.ContainsKey(conversationIdx) Then
 
-                Dim thread As New Thread(conversationIdx, 4)
+                Dim thread As New Thread(conversationIdx, 6)
                 threadMap.Add(conversationIdx, thread)
                 ThreadToolStripStatusLabel.Text = "Thread " & (Me.threadIdx + 1) & " of " & threadMap.Count
             End If
@@ -121,7 +137,7 @@ Public Class EmailDisplayerForm
             Dim conversationIdx = curItem.ConversationIndex.Substring(0, 44)
             If Not threadMap.ContainsKey(conversationIdx) Then
 
-                Dim thread As New Thread(conversationIdx, 5)
+                Dim thread As New Thread(conversationIdx, 7)
                 threadMap.Add(conversationIdx, thread)
                 ThreadToolStripStatusLabel.Text = "Thread " & (Me.threadIdx + 1) & " of " & threadMap.Count
             End If
@@ -132,7 +148,7 @@ Public Class EmailDisplayerForm
             Dim conversationIdx = curItem.ConversationIndex.Substring(0, 44)
             If Not threadMap.ContainsKey(conversationIdx) Then
 
-                Dim thread As New Thread(conversationIdx, 6)
+                Dim thread As New Thread(conversationIdx, 8)
                 threadMap.Add(conversationIdx, thread)
                 ThreadToolStripStatusLabel.Text = "Thread " & (Me.threadIdx + 1) & " of " & threadMap.Count
             End If
@@ -143,7 +159,7 @@ Public Class EmailDisplayerForm
             Dim conversationIdx = curItem.ConversationIndex.Substring(0, 44)
             If Not threadMap.ContainsKey(conversationIdx) Then
 
-                Dim thread As New Thread(conversationIdx, 7)
+                Dim thread As New Thread(conversationIdx, 9)
                 threadMap.Add(conversationIdx, thread)
                 ThreadToolStripStatusLabel.Text = "Thread " & (Me.threadIdx + 1) & " of " & threadMap.Count
             End If
@@ -171,35 +187,50 @@ Public Class EmailDisplayerForm
         Dim inboxFolder As Outlook.Folder = Me.olNs.DefaultStore.GetDefaultFolder(OlDefaultFolders.olFolderInbox)
         ToolStripStatusLabel.Text = "Loading items from " & inboxFolder.FolderPath
         For Each curItem In inboxFolder.Items
-            Dim curMail As Outlook.MailItem = TryCast(curItem, Outlook.MailItem)
-            If curMail IsNot Nothing AndAlso curMail.UnRead Then
-                Dim conversationIdx = curMail.ConversationIndex.Substring(0, 44)
-                Dim thread As Thread = Nothing
 
-                If Not threadMap.TryGetValue(conversationIdx, thread) Then
+            If curItem.MessageClass.ToString.StartsWith("IPM.Schedule.Meeting.") OrElse curItem.MessageClass.ToString.Equals("REPORT.IPM.Note.NDR") Then
 
-                    thread = New Thread(conversationIdx, 99)
+                Dim conversationIdx = curItem.ConversationIndex.Substring(0, 44)
+                If Not threadMap.ContainsKey(conversationIdx) Then
+
+                    Dim thread As New Thread(conversationIdx, 1)
                     threadMap.Add(conversationIdx, thread)
                     ThreadToolStripStatusLabel.Text = "Thread " & (Me.threadIdx + 1) & " of " & threadMap.Count
                 End If
 
-                thread.AddEmail(New Email(curMail.EntryID, curMail.SentOn))
-                EmailToolStripStatusLabel.Text = "Email " & (Me.mailIdx + 1) & " of " & thread.Emails.Count
+            Else
+
+                Dim curMail As Outlook.MailItem = TryCast(curItem, Outlook.MailItem)
+                If curMail IsNot Nothing AndAlso curMail.UnRead Then
+                    Dim conversationIdx = curMail.ConversationIndex.Substring(0, 44)
+                    Dim thread As Thread = Nothing
+
+                    If Not threadMap.TryGetValue(conversationIdx, thread) Then
+
+                        thread = New Thread(conversationIdx, 99)
+                        threadMap.Add(conversationIdx, thread)
+                        ThreadToolStripStatusLabel.Text = "Thread " & (Me.threadIdx + 1) & " of " & threadMap.Count
+                    End If
+
+                    thread.AddEmail(New Email(curMail.EntryID, curMail.SentOn))
+                    EmailToolStripStatusLabel.Text = "Email " & (Me.mailIdx + 1) & " of " & thread.Emails.Count
+                End If
             End If
+
         Next
 
         ' Retrieve all Threads from the dictionary into a list
         Me.threads = threadMap.Values.ToList()
 
         ' Sort the list by Priority ascending and StartDate
-        Me.threads = Me.threads.OrderBy(Function(t) t.Priority).ThenBy(Function(t) t.StartDate).ToList()
+        Me.threads = Me.threads.OrderBy(Function(t) t.StartDate).ThenBy(Function(t) t.Priority).ToList()
 
     End Sub
 
     Sub DisplayEmail()
-
+        Dim thread As Thread
         If threadIdx < Me.threads.Count Then
-            Dim thread As Thread = Me.threads.Item(Me.threadIdx)
+            thread = Me.threads.Item(Me.threadIdx)
             While Me.mailIdx >= thread.Emails.Count
                 Me.mailIdx = 0
                 Me.threadIdx += 1
@@ -209,7 +240,7 @@ Public Class EmailDisplayerForm
             End While
 
 
-            ThreadToolStripStatusLabel.Text = "Thread " & (Me.threadIdx + 1) & " of " & Me.threads.Count
+            ThreadToolStripStatusLabel.Text = "Thread " & (Me.threadIdx + 1) & " of " & Me.threads.Count & " P" & thread.Priority
 
             Dim email As Email = thread.Emails.Item(Me.mailIdx)
 

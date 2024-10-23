@@ -16,9 +16,9 @@ Module Module1
         For Each curItem In inboxFolder.Items
 
 
-            If curItem.MessageClass.ToString.StartsWith("IPM.Schedule.Meeting.") AndAlso curItem.UnRead Then
+            If curItem.MessageClass.ToString.StartsWith("IPM.Schedule.Meeting.") OrElse curItem.MessageClass.ToString.Equals("REPORT.IPM.Note.NDR") Then
 
-                Console.WriteLine(curItem.MessageClass & " - " & curItem.Subject)
+                Console.WriteLine(curItem.MessageClass & " - " & curItem.Subject & " - " & curItem.ConversationIndex)
 
                 olNs.GetItemFromID(curItem.EntryID).Display()
                 Console.WriteLine("Press enter to continue")
