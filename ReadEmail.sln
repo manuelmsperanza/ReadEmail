@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35327.3
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "ReadEmail", "ReadEmail\ReadEmail.vbproj", "{7EEFF0DD-2F7F-4065-AC42-43E891D89AFF}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "ReadMeetings", "ReadEmail\ReadMeetings.vbproj", "{7EEFF0DD-2F7F-4065-AC42-43E891D89AFF}"
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "EmailDisplayer", "EmailDisplayer\EmailDisplayer.vbproj", "{09948295-42B2-412B-8E1E-1B8DB380481C}"
 EndProject

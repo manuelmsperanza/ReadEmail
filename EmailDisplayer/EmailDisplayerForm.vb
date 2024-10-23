@@ -200,13 +200,14 @@ Public Class EmailDisplayerForm
 
         If threadIdx < Me.threads.Count Then
             Dim thread As Thread = Me.threads.Item(Me.threadIdx)
-            If Me.mailIdx >= thread.Emails.Count Then
+            While Me.mailIdx >= thread.Emails.Count
                 Me.mailIdx = 0
                 Me.threadIdx += 1
                 If threadIdx < Me.threads.Count Then
                     thread = Me.threads.Item(Me.threadIdx)
                 End If
-            End If
+            End While
+
 
             ThreadToolStripStatusLabel.Text = "Thread " & (Me.threadIdx + 1) & " of " & Me.threads.Count
 
