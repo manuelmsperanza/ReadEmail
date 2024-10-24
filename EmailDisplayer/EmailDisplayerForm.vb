@@ -2,8 +2,8 @@
 
 Public Class EmailDisplayerForm
 
-    Public olApp As Outlook.Application  'Riferimento processo OUTLOOK
-    Public olNs As Outlook.NameSpace     'Namespace utilizzato per navigare i pst, ottenere la sessione, gli elementi selezionati...
+    Private olApp As Outlook.Application  'Riferimento processo OUTLOOK
+    Private olNs As Outlook.NameSpace     'Namespace utilizzato per navigare i pst, ottenere la sessione, gli elementi selezionati...
 
     WithEvents dgMail As Outlook.MailItem
 
@@ -88,8 +88,8 @@ Public Class EmailDisplayerForm
             End If
         Next
 
-        ToolStripStatusLabel.Text = "Loading items from " & Me.sentToMe.FolderPath
-        For Each curItem In Me.sentToMe.Items
+        ToolStripStatusLabel.Text = "Loading items from " & Me.vipFolder.FolderPath
+        For Each curItem In Me.vipFolder.Items
             Dim conversationIdx = curItem.ConversationIndex.Substring(0, 44)
             If Not threadMap.ContainsKey(conversationIdx) Then
 
@@ -99,8 +99,8 @@ Public Class EmailDisplayerForm
             End If
         Next
 
-        ToolStripStatusLabel.Text = "Loading items from " & Me.vipFolder.FolderPath
-        For Each curItem In Me.vipFolder.Items
+        ToolStripStatusLabel.Text = "Loading items from " & Me.sentToMe.FolderPath
+        For Each curItem In Me.sentToMe.Items
             Dim conversationIdx = curItem.ConversationIndex.Substring(0, 44)
             If Not threadMap.ContainsKey(conversationIdx) Then
 
@@ -188,14 +188,22 @@ Public Class EmailDisplayerForm
         ToolStripStatusLabel.Text = "Loading items from " & inboxFolder.FolderPath
         For Each curItem In inboxFolder.Items
 
-            If curItem.MessageClass.ToString.StartsWith("IPM.Schedule.Meeting.") OrElse curItem.MessageClass.ToString.Equals("REPORT.IPM.Note.NDR") Then
+            If curItem.MessageClass.ToString.StartsWith("IPM.Schedule.Meeting.") OrElse curItem.MessageClass.ToString.Equals("REPORT.IPM.Note.NDR") OrElse curItem.MessageClass.ToString.Equals("IPM.Note.Rules.OofTemplate.Microsoft") Then
 
                 Dim conversationIdx = curItem.ConversationIndex.Substring(0, 44)
-                If Not threadMap.ContainsKey(conversationIdx) Then
 
-                    Dim thread As New Thread(conversationIdx, 1)
+                Dim thread As Thread = Nothing
+
+                If threadMap.TryGetValue(conversationIdx, thread) Then
+
+                    thread.Priority = 1
+
+                Else
+
+                    thread = New Thread(conversationIdx, 1)
                     threadMap.Add(conversationIdx, thread)
                     ThreadToolStripStatusLabel.Text = "Thread " & (Me.threadIdx + 1) & " of " & threadMap.Count
+
                 End If
 
             Else
@@ -223,7 +231,7 @@ Public Class EmailDisplayerForm
         Me.threads = threadMap.Values.ToList()
 
         ' Sort the list by Priority ascending and StartDate
-        Me.threads = Me.threads.OrderBy(Function(t) t.StartDate).ThenBy(Function(t) t.Priority).ToList()
+        Me.threads = Me.threads.OrderBy(Function(t) t.Priority).ThenBy(Function(t) t.StartDate).ToList()
 
     End Sub
 

@@ -16,7 +16,7 @@ Module Module1
         For Each curItem In inboxFolder.Items
 
 
-            If curItem.MessageClass.ToString.StartsWith("IPM.Schedule.Meeting.") OrElse curItem.MessageClass.ToString.Equals("REPORT.IPM.Note.NDR") Then
+            If curItem.MessageClass.ToString.StartsWith("IPM.Schedule.Meeting.") OrElse curItem.MessageClass.ToString.Equals("REPORT.IPM.Note.NDR") OrElse curItem.MessageClass.ToString.Equals("IPM.Note.Rules.OofTemplate.Microsoft") Then
 
                 Console.WriteLine(curItem.MessageClass & " - " & curItem.Subject & " - " & curItem.ConversationIndex)
 
