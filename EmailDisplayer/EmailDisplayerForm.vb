@@ -68,13 +68,13 @@ Public Class EmailDisplayerForm
 
         Next
 
-        OrganizeEmail()
-        ToolStripStatusLabel.Text = "Reading"
-        DisplayEmail()
-
     End Sub
 
     Sub OrganizeEmail()
+
+        Me.threadIdx = 0
+        Me.mailIdx = 0
+
         Dim threadMap As New Dictionary(Of String, Thread)()
 
         ToolStripStatusLabel.Text = "Loading items from " & Me.sentOnlyToMe.FolderPath
@@ -121,68 +121,68 @@ Public Class EmailDisplayerForm
             End If
         Next
 
-        ToolStripStatusLabel.Text = "Loading items from " & Me.verifyingFolder.FolderPath
-        For Each curItem In Me.verifyingFolder.Items
-            Dim conversationIdx = curItem.ConversationIndex.Substring(0, 44)
-            If Not threadMap.ContainsKey(conversationIdx) Then
+        'ToolStripStatusLabel.Text = "Loading items from " & Me.verifyingFolder.FolderPath
+        'For Each curItem In Me.verifyingFolder.Items
+        '    Dim conversationIdx = curItem.ConversationIndex.Substring(0, 44)
+        '    If Not threadMap.ContainsKey(conversationIdx) Then
 
-                Dim thread As New Thread(conversationIdx, 6)
-                threadMap.Add(conversationIdx, thread)
-                ThreadToolStripStatusLabel.Text = "Thread " & (Me.threadIdx + 1) & " of " & threadMap.Count
-            End If
-        Next
+        '        Dim thread As New Thread(conversationIdx, 6)
+        '        threadMap.Add(conversationIdx, thread)
+        '        ThreadToolStripStatusLabel.Text = "Thread " & (Me.threadIdx + 1) & " of " & threadMap.Count
+        '    End If
+        'Next
 
-        ToolStripStatusLabel.Text = "Loading items from " & Me.activeFolder.FolderPath
-        For Each curItem In Me.activeFolder.Items
-            Dim conversationIdx = curItem.ConversationIndex.Substring(0, 44)
-            If Not threadMap.ContainsKey(conversationIdx) Then
+        'ToolStripStatusLabel.Text = "Loading items from " & Me.activeFolder.FolderPath
+        'For Each curItem In Me.activeFolder.Items
+        '    Dim conversationIdx = curItem.ConversationIndex.Substring(0, 44)
+        '    If Not threadMap.ContainsKey(conversationIdx) Then
 
-                Dim thread As New Thread(conversationIdx, 7)
-                threadMap.Add(conversationIdx, thread)
-                ThreadToolStripStatusLabel.Text = "Thread " & (Me.threadIdx + 1) & " of " & threadMap.Count
-            End If
-        Next
+        '        Dim thread As New Thread(conversationIdx, 7)
+        '        threadMap.Add(conversationIdx, thread)
+        '        ThreadToolStripStatusLabel.Text = "Thread " & (Me.threadIdx + 1) & " of " & threadMap.Count
+        '    End If
+        'Next
 
-        ToolStripStatusLabel.Text = "Loading items from " & Me.backlogFolder.FolderPath
-        For Each curItem In Me.backlogFolder.Items
-            Dim conversationIdx = curItem.ConversationIndex.Substring(0, 44)
-            If Not threadMap.ContainsKey(conversationIdx) Then
+        'ToolStripStatusLabel.Text = "Loading items from " & Me.backlogFolder.FolderPath
+        'For Each curItem In Me.backlogFolder.Items
+        '    Dim conversationIdx = curItem.ConversationIndex.Substring(0, 44)
+        '    If Not threadMap.ContainsKey(conversationIdx) Then
 
-                Dim thread As New Thread(conversationIdx, 8)
-                threadMap.Add(conversationIdx, thread)
-                ThreadToolStripStatusLabel.Text = "Thread " & (Me.threadIdx + 1) & " of " & threadMap.Count
-            End If
-        Next
+        '        Dim thread As New Thread(conversationIdx, 8)
+        '        threadMap.Add(conversationIdx, thread)
+        '        ThreadToolStripStatusLabel.Text = "Thread " & (Me.threadIdx + 1) & " of " & threadMap.Count
+        '    End If
+        'Next
 
-        ToolStripStatusLabel.Text = "Loading items from " & Me.newFolder.FolderPath
-        For Each curItem In Me.newFolder.Items
-            Dim conversationIdx = curItem.ConversationIndex.Substring(0, 44)
-            If Not threadMap.ContainsKey(conversationIdx) Then
+        'ToolStripStatusLabel.Text = "Loading items from " & Me.newFolder.FolderPath
+        'For Each curItem In Me.newFolder.Items
+        '    Dim conversationIdx = curItem.ConversationIndex.Substring(0, 44)
+        '    If Not threadMap.ContainsKey(conversationIdx) Then
 
-                Dim thread As New Thread(conversationIdx, 9)
-                threadMap.Add(conversationIdx, thread)
-                ThreadToolStripStatusLabel.Text = "Thread " & (Me.threadIdx + 1) & " of " & threadMap.Count
-            End If
-        Next
+        '        Dim thread As New Thread(conversationIdx, 9)
+        '        threadMap.Add(conversationIdx, thread)
+        '        ThreadToolStripStatusLabel.Text = "Thread " & (Me.threadIdx + 1) & " of " & threadMap.Count
+        '    End If
+        'Next
 
-        ToolStripStatusLabel.Text = "Loading items from " & Me.forFollowUpFolder.FolderPath
-        For Each curItem In Me.forFollowUpFolder.Items
-            Dim curMail As Outlook.MailItem = TryCast(curItem, Outlook.MailItem)
-            If curMail IsNot Nothing Then
-                Dim conversationIdx = curMail.ConversationIndex.Substring(0, 44)
-                Dim thread As Thread = Nothing
+        'ToolStripStatusLabel.Text = "Loading items from " & Me.forFollowUpFolder.FolderPath
+        'For Each curItem In Me.forFollowUpFolder.Items
+        '    Dim curMail As Outlook.MailItem = TryCast(curItem, Outlook.MailItem)
+        '    If curMail IsNot Nothing Then
+        '        Dim conversationIdx = curMail.ConversationIndex.Substring(0, 44)
+        '        Dim thread As Thread = Nothing
 
-                If Not threadMap.TryGetValue(conversationIdx, thread) Then
+        '        If Not threadMap.TryGetValue(conversationIdx, thread) Then
 
-                    thread = New Thread(conversationIdx, 98)
-                    threadMap.Add(conversationIdx, thread)
-                    ThreadToolStripStatusLabel.Text = "Thread " & (Me.threadIdx + 1) & " of " & threadMap.Count
-                End If
+        '            thread = New Thread(conversationIdx, 98)
+        '            threadMap.Add(conversationIdx, thread)
+        '            ThreadToolStripStatusLabel.Text = "Thread " & (Me.threadIdx + 1) & " of " & threadMap.Count
+        '        End If
 
-                thread.AddEmail(New Email(curMail.EntryID, curMail.SentOn))
-                EmailToolStripStatusLabel.Text = "Email " & (Me.mailIdx + 1) & " of " & thread.Emails.Count
-            End If
-        Next
+        '        thread.AddEmail(New Email(curMail.EntryID, curMail.SentOn))
+        '        EmailToolStripStatusLabel.Text = "Email " & (Me.mailIdx + 1) & " of " & thread.Emails.Count
+        '    End If
+        'Next
 
         Dim inboxFolder As Outlook.Folder = Me.olNs.DefaultStore.GetDefaultFolder(OlDefaultFolders.olFolderInbox)
         ToolStripStatusLabel.Text = "Loading items from " & inboxFolder.FolderPath
@@ -268,6 +268,14 @@ Public Class EmailDisplayerForm
         dgMail = Nothing
         Console.WriteLine("mail closed")
         DisplayEmail()
+    End Sub
+
+    Private Sub RefreshButton_Click(sender As Object, e As EventArgs) Handles RefreshButton.Click
+
+        OrganizeEmail()
+        ToolStripStatusLabel.Text = "Reading"
+        DisplayEmail()
+
     End Sub
 
 End Class

@@ -26,13 +26,14 @@ Partial Class EmailDisplayerForm
         Me.ToolStripStatusLabel = New System.Windows.Forms.ToolStripStatusLabel()
         Me.ThreadToolStripStatusLabel = New System.Windows.Forms.ToolStripStatusLabel()
         Me.EmailToolStripStatusLabel = New System.Windows.Forms.ToolStripStatusLabel()
+        Me.RefreshButton = New System.Windows.Forms.Button()
         Me.StatusStrip.SuspendLayout()
         Me.SuspendLayout()
         '
         'StatusStrip
         '
         Me.StatusStrip.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ToolStripStatusLabel, Me.ThreadToolStripStatusLabel, Me.EmailToolStripStatusLabel})
-        Me.StatusStrip.Location = New System.Drawing.Point(0, 428)
+        Me.StatusStrip.Location = New System.Drawing.Point(0, 134)
         Me.StatusStrip.Name = "StatusStrip"
         Me.StatusStrip.Size = New System.Drawing.Size(800, 22)
         Me.StatusStrip.TabIndex = 0
@@ -56,11 +57,21 @@ Partial Class EmailDisplayerForm
         Me.EmailToolStripStatusLabel.Size = New System.Drawing.Size(70, 17)
         Me.EmailToolStripStatusLabel.Text = "Email # of #"
         '
+        'RefreshButton
+        '
+        Me.RefreshButton.Location = New System.Drawing.Point(701, 105)
+        Me.RefreshButton.Name = "RefreshButton"
+        Me.RefreshButton.Size = New System.Drawing.Size(75, 23)
+        Me.RefreshButton.TabIndex = 1
+        Me.RefreshButton.Text = "Refresh"
+        Me.RefreshButton.UseVisualStyleBackColor = True
+        '
         'EmailDisplayerForm
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(800, 450)
+        Me.ClientSize = New System.Drawing.Size(800, 156)
+        Me.Controls.Add(Me.RefreshButton)
         Me.Controls.Add(Me.StatusStrip)
         Me.Name = "EmailDisplayerForm"
         Me.Text = "EmailDisplayer"
@@ -75,4 +86,5 @@ Partial Class EmailDisplayerForm
     Friend WithEvents ToolStripStatusLabel As ToolStripStatusLabel
     Friend WithEvents ThreadToolStripStatusLabel As ToolStripStatusLabel
     Friend WithEvents EmailToolStripStatusLabel As ToolStripStatusLabel
+    Friend WithEvents RefreshButton As Button
 End Class
