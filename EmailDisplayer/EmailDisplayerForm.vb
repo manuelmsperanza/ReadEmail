@@ -274,9 +274,11 @@ Public Class EmailDisplayerForm
             If Me.LogDataGridView.InvokeRequired Then
                 Me.LogDataGridView.Invoke(Sub()
                                               Me.LogDataGridView.Rows.Add(row0)
+                                              Me.LogDataGridView.CurrentCell = Me.LogDataGridView.Rows(Me.LogDataGridView.Rows.Count - 1).Cells(0)
                                           End Sub)
             Else
                 Me.LogDataGridView.Rows.Add(row0)
+                Me.LogDataGridView.CurrentCell = Me.LogDataGridView.Rows(Me.LogDataGridView.Rows.Count - 1).Cells(0)
             End If
 
             Me.dgMail.Display()
