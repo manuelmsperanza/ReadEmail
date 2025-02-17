@@ -27,15 +27,23 @@ Partial Class EmailDisplayerForm
         Me.ThreadToolStripStatusLabel = New System.Windows.Forms.ToolStripStatusLabel()
         Me.EmailToolStripStatusLabel = New System.Windows.Forms.ToolStripStatusLabel()
         Me.RefreshButton = New System.Windows.Forms.Button()
+        Me.SkipThreadButton = New System.Windows.Forms.Button()
+        Me.LogDataGridView = New System.Windows.Forms.DataGridView()
+        Me.MailId = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.ReadOn = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.SentOn = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.SenderName = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.Subject = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.StatusStrip.SuspendLayout()
+        CType(Me.LogDataGridView, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'StatusStrip
         '
         Me.StatusStrip.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ToolStripStatusLabel, Me.ThreadToolStripStatusLabel, Me.EmailToolStripStatusLabel})
-        Me.StatusStrip.Location = New System.Drawing.Point(0, 134)
+        Me.StatusStrip.Location = New System.Drawing.Point(0, 421)
         Me.StatusStrip.Name = "StatusStrip"
-        Me.StatusStrip.Size = New System.Drawing.Size(800, 22)
+        Me.StatusStrip.Size = New System.Drawing.Size(1103, 22)
         Me.StatusStrip.TabIndex = 0
         Me.StatusStrip.Text = "StatusStrip1"
         '
@@ -59,24 +67,82 @@ Partial Class EmailDisplayerForm
         '
         'RefreshButton
         '
-        Me.RefreshButton.Location = New System.Drawing.Point(701, 105)
+        Me.RefreshButton.Location = New System.Drawing.Point(1016, 383)
         Me.RefreshButton.Name = "RefreshButton"
         Me.RefreshButton.Size = New System.Drawing.Size(75, 23)
         Me.RefreshButton.TabIndex = 1
         Me.RefreshButton.Text = "Refresh"
         Me.RefreshButton.UseVisualStyleBackColor = True
         '
+        'SkipThreadButton
+        '
+        Me.SkipThreadButton.Location = New System.Drawing.Point(930, 382)
+        Me.SkipThreadButton.Name = "SkipThreadButton"
+        Me.SkipThreadButton.Size = New System.Drawing.Size(75, 23)
+        Me.SkipThreadButton.TabIndex = 3
+        Me.SkipThreadButton.Text = "Skip Thread"
+        Me.SkipThreadButton.UseVisualStyleBackColor = True
+        '
+        'LogDataGridView
+        '
+        Me.LogDataGridView.AllowUserToAddRows = False
+        Me.LogDataGridView.AllowUserToDeleteRows = False
+        Me.LogDataGridView.AllowUserToOrderColumns = True
+        Me.LogDataGridView.AllowUserToResizeRows = False
+        Me.LogDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
+        Me.LogDataGridView.Columns.AddRange(New System.Windows.Forms.DataGridViewColumn() {Me.MailId, Me.ReadOn, Me.SentOn, Me.SenderName, Me.Subject})
+        Me.LogDataGridView.Location = New System.Drawing.Point(12, 12)
+        Me.LogDataGridView.Name = "LogDataGridView"
+        Me.LogDataGridView.ReadOnly = True
+        Me.LogDataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
+        Me.LogDataGridView.Size = New System.Drawing.Size(1079, 364)
+        Me.LogDataGridView.TabIndex = 4
+        '
+        'MailId
+        '
+        Me.MailId.HeaderText = "Mail ID"
+        Me.MailId.Name = "MailId"
+        Me.MailId.ReadOnly = True
+        Me.MailId.Visible = False
+        '
+        'ReadOn
+        '
+        Me.ReadOn.HeaderText = "Read On"
+        Me.ReadOn.Name = "ReadOn"
+        Me.ReadOn.ReadOnly = True
+        '
+        'SentOn
+        '
+        Me.SentOn.HeaderText = "Sent On"
+        Me.SentOn.Name = "SentOn"
+        Me.SentOn.ReadOnly = True
+        '
+        'SenderName
+        '
+        Me.SenderName.HeaderText = "Sender"
+        Me.SenderName.Name = "SenderName"
+        Me.SenderName.ReadOnly = True
+        '
+        'Subject
+        '
+        Me.Subject.HeaderText = "Subject"
+        Me.Subject.Name = "Subject"
+        Me.Subject.ReadOnly = True
+        '
         'EmailDisplayerForm
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(800, 156)
+        Me.ClientSize = New System.Drawing.Size(1103, 443)
+        Me.Controls.Add(Me.LogDataGridView)
+        Me.Controls.Add(Me.SkipThreadButton)
         Me.Controls.Add(Me.RefreshButton)
         Me.Controls.Add(Me.StatusStrip)
         Me.Name = "EmailDisplayerForm"
         Me.Text = "EmailDisplayer"
         Me.StatusStrip.ResumeLayout(False)
         Me.StatusStrip.PerformLayout()
+        CType(Me.LogDataGridView, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -87,4 +153,11 @@ Partial Class EmailDisplayerForm
     Friend WithEvents ThreadToolStripStatusLabel As ToolStripStatusLabel
     Friend WithEvents EmailToolStripStatusLabel As ToolStripStatusLabel
     Friend WithEvents RefreshButton As Button
+    Friend WithEvents SkipThreadButton As Button
+    Friend WithEvents LogDataGridView As DataGridView
+    Friend WithEvents MailId As DataGridViewTextBoxColumn
+    Friend WithEvents ReadOn As DataGridViewTextBoxColumn
+    Friend WithEvents SentOn As DataGridViewTextBoxColumn
+    Friend WithEvents SenderName As DataGridViewTextBoxColumn
+    Friend WithEvents Subject As DataGridViewTextBoxColumn
 End Class

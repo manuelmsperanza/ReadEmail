@@ -68,6 +68,9 @@ Public Class EmailDisplayerForm
 
         Next
 
+        ' Set AutoSizeColumnsMode for LogDataGridView
+        Me.LogDataGridView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells
+
     End Sub
 
     Sub OrganizeEmail()
@@ -190,21 +193,23 @@ Public Class EmailDisplayerForm
 
             If curItem.MessageClass.ToString.StartsWith("IPM.Schedule.Meeting.") OrElse curItem.MessageClass.ToString.Equals("REPORT.IPM.Note.NDR") OrElse curItem.MessageClass.ToString.Equals("IPM.Note.Rules.OofTemplate.Microsoft") Then
 
-                Dim conversationIdx = curItem.ConversationIndex.Substring(0, 44)
+                'Dim conversationIdx = curItem.ConversationIndex.Substring(0, 44)
 
-                Dim thread As Thread = Nothing
+                'Dim thread As Thread = Nothing
 
-                If threadMap.TryGetValue(conversationIdx, thread) Then
+                'If threadMap.TryGetValue(conversationIdx, thread) Then
 
-                    thread.Priority = 1
+                '    thread.Priority = 1
 
-                Else
+                'Else
 
-                    thread = New Thread(conversationIdx, 1)
-                    threadMap.Add(conversationIdx, thread)
-                    ThreadToolStripStatusLabel.Text = "Thread " & (Me.threadIdx + 1) & " of " & threadMap.Count
+                '    thread = New Thread(conversationIdx, 1)
+                '    threadMap.Add(conversationIdx, thread)
+                '    ThreadToolStripStatusLabel.Text = "Thread " & (Me.threadIdx + 1) & " of " & threadMap.Count
 
-                End If
+                'End If
+
+                olNs.GetItemFromID(curItem.EntryID).Display()
 
             Else
 
@@ -218,6 +223,10 @@ Public Class EmailDisplayerForm
                         thread = New Thread(conversationIdx, 99)
                         threadMap.Add(conversationIdx, thread)
                         ThreadToolStripStatusLabel.Text = "Thread " & (Me.threadIdx + 1) & " of " & threadMap.Count
+                    End If
+
+                    If curMail.Importance = OlImportance.olImportanceHigh Then
+                        thread.Priority = 1
                     End If
 
                     thread.AddEmail(New Email(curMail.EntryID, curMail.SentOn))
@@ -257,6 +266,19 @@ Public Class EmailDisplayerForm
             Dim itemEntryId As String = email.EntryId
 
             Me.dgMail = Me.olNs.GetItemFromID(itemEntryId)
+
+
+            'Me.LogTextBox.AppendText(Now() & "> " & Me.dgMail.SentOn & " | " & Me.dgMail.SenderName & " | " & Me.dgMail.Subject & vbNewLine)
+            Dim row0 As String() = {itemEntryId, Now(), Me.dgMail.SentOn, Me.dgMail.SenderName, Me.dgMail.Subject}
+
+            If Me.LogDataGridView.InvokeRequired Then
+                Me.LogDataGridView.Invoke(Sub()
+                                              Me.LogDataGridView.Rows.Add(row0)
+                                          End Sub)
+            Else
+                Me.LogDataGridView.Rows.Add(row0)
+            End If
+
             Me.dgMail.Display()
             Me.mailIdx += 1
 
@@ -271,11 +293,46 @@ Public Class EmailDisplayerForm
     End Sub
 
     Private Sub RefreshButton_Click(sender As Object, e As EventArgs) Handles RefreshButton.Click
+        If dgMail IsNot Nothing Then
+            Dim displayMail As Outlook.MailItem = dgMail
+            dgMail = Nothing
+            displayMail.UnRead = vbTrue
+            displayMail.Close(OlInspectorClose.olDiscard)
+        End If
 
         OrganizeEmail()
         ToolStripStatusLabel.Text = "Reading"
         DisplayEmail()
 
+    End Sub
+
+    Private Sub SkipThreadButton_Click(sender As Object, e As EventArgs) Handles SkipThreadButton.Click
+
+        'Me.LogTextBox.AppendText(Now() & "> SKIP" & vbNewLine)
+        Dim thread As Thread = Me.threads.Item(Me.threadIdx)
+
+        For idxEmail = Me.mailIdx To thread.Emails.Count - 1 Step 1
+            Dim email As Email = thread.Emails.Item(idxEmail)
+            Dim itemEntryId As String = email.EntryId
+
+            Dim mailItem As Outlook.MailItem = Me.olNs.GetItemFromID(itemEntryId)
+            mailItem.UnRead = False
+
+        Next idxEmail
+
+        Me.mailIdx = 0
+        Me.threadIdx += 1
+
+        Me.dgMail.Close(OlInspectorClose.olDiscard)
+
+    End Sub
+
+    Private Sub LogDataGridView_CellDoubleClick(sender As Object, e As DataGridViewCellEventArgs) Handles LogDataGridView.CellDoubleClick
+        If e.RowIndex >= 0 Then
+            Dim entryId As String = LogDataGridView.Rows(e.RowIndex).Cells(0).Value.ToString()
+            Dim mailItem As Outlook.MailItem = Me.olNs.GetItemFromID(entryId)
+            mailItem.Display()
+        End If
     End Sub
 
 End Class

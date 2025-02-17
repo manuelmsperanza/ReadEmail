@@ -21,8 +21,8 @@ Module Module1
                 Console.WriteLine(curItem.MessageClass & " - " & curItem.Subject & " - " & curItem.ConversationIndex)
 
                 olNs.GetItemFromID(curItem.EntryID).Display()
-                Console.WriteLine("Press enter to continue")
-                Console.ReadLine()
+                'Console.WriteLine("Press enter to continue")
+                'Console.ReadLine()
             ElseIf Not curItem.MessageClass.Equals("IPM.Note") Then
                 Console.WriteLine(curItem.MessageClass & " - " & curItem.Subject)
             End If
