@@ -428,13 +428,19 @@ Public Class EmailDisplayerForm
 
     Private Sub ExportMailItem(mailItem As Outlook.MailItem, exportDirectory As String)
         Dim fileBaseName As String = GetMailFileBaseName(mailItem)
-        Dim mailFilePath As String = GetUniqueFilePath(exportDirectory, fileBaseName & ".txt")
+        Dim mailFilePath As String = GetUniqueFilePath(exportDirectory, fileBaseName & ".mht")
 
-        mailItem.SaveAs(mailFilePath, OlSaveAsType.olTXT)
+        mailItem.SaveAs(mailFilePath, OlSaveAsType.olMHTML)
+
+        Dim attachmentExportDirectory As String = Path.Combine(exportDirectory, fileBaseName)
+
+        If Not Directory.Exists(attachmentExportDirectory) Then
+            Directory.CreateDirectory(attachmentExportDirectory)
+        End If
 
         For attachmentIndex As Integer = 1 To mailItem.Attachments.Count
             Dim attachment As Outlook.Attachment = mailItem.Attachments.Item(attachmentIndex)
-            Dim attachmentFileName As String = GetUniqueFilePath(exportDirectory, fileBaseName & "_attachment_" & attachmentIndex.ToString("00") & "_" & SanitizeFileName(attachment.FileName))
+            Dim attachmentFileName As String = GetUniqueFilePath(attachmentExportDirectory, attachmentIndex.ToString("00") & "_" & SanitizeFileName(attachment.FileName))
 
             attachment.SaveAsFile(attachmentFileName)
         Next attachmentIndex
