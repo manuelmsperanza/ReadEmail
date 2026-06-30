@@ -1,4 +1,5 @@
 ﻿Imports System.ComponentModel
+Imports System.IO
 Imports System.Windows.Forms.VisualStyles.VisualStyleElement.Menu
 Imports Microsoft.Office.Interop.Outlook
 
@@ -395,20 +396,96 @@ Public Class EmailDisplayerForm
     End Sub
 
     Private Sub ExportMailButton_Click(sender As Object, e As EventArgs) Handles ExportMailButton.Click
-        For Each row In LogDataGridView.SelectedRows
+        If LogDataGridView.SelectedRows.Count = 0 Then
+            MessageBox.Show("Select one or more email rows to export.", "Export email", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            Return
+        End If
 
-            Dim entryId As String = row.Cells(0).Value.ToString()
-            Dim mailItem As Outlook.MailItem = Me.olNs.GetItemFromID(entryId)
+        Using exportDirectoryDialog As New FolderBrowserDialog()
+            exportDirectoryDialog.Description = "Choose the directory where the selected emails and attachments will be saved."
+            exportDirectoryDialog.ShowNewFolderButton = True
 
-            Dim saveMailDialog As New SaveFileDialog()
+            If exportDirectoryDialog.ShowDialog(Me) <> DialogResult.OK Then
+                Return
+            End If
 
-            For Each attachment In mailItem.Attachments
+            For Each selectedRow As DataGridViewRow In LogDataGridView.SelectedRows
+                If selectedRow.IsNewRow OrElse selectedRow.Cells(0).Value Is Nothing Then
+                    Continue For
+                End If
 
-            Next attachment
+                Dim entryId As String = selectedRow.Cells(0).Value.ToString()
+                Dim mailItem As Outlook.MailItem = TryCast(Me.olNs.GetItemFromID(entryId), Outlook.MailItem)
 
-        Next row
+                If mailItem Is Nothing Then
+                    Continue For
+                End If
 
-
-
+                ExportMailItem(mailItem, exportDirectoryDialog.SelectedPath)
+            Next selectedRow
+        End Using
     End Sub
+
+    Private Sub ExportMailItem(mailItem As Outlook.MailItem, exportDirectory As String)
+        Dim fileBaseName As String = GetMailFileBaseName(mailItem)
+        Dim mailFilePath As String = GetUniqueFilePath(exportDirectory, fileBaseName & ".txt")
+
+        mailItem.SaveAs(mailFilePath, OlSaveAsType.olTXT)
+
+        For attachmentIndex As Integer = 1 To mailItem.Attachments.Count
+            Dim attachment As Outlook.Attachment = mailItem.Attachments.Item(attachmentIndex)
+            Dim attachmentFileName As String = GetUniqueFilePath(exportDirectory, fileBaseName & "_attachment_" & attachmentIndex.ToString("00") & "_" & SanitizeFileName(attachment.FileName))
+
+            attachment.SaveAsFile(attachmentFileName)
+        Next attachmentIndex
+    End Sub
+
+    Private Function GetMailFileBaseName(mailItem As Outlook.MailItem) As String
+        Dim shortEntryId As String = mailItem.EntryID
+
+        If shortEntryId.Length > 8 Then
+            shortEntryId = shortEntryId.Substring(shortEntryId.Length - 8)
+        End If
+
+        Return SanitizeFileName(mailItem.SentOn.ToString("yyyyMMdd_HHmmss") & "_" & mailItem.Subject & "_" & shortEntryId)
+    End Function
+
+    Private Function SanitizeFileName(fileName As String) As String
+        If String.IsNullOrWhiteSpace(fileName) Then
+            Return "email"
+        End If
+
+        Dim sanitized As String = fileName
+
+        For Each invalidCharacter As Char In Path.GetInvalidFileNameChars()
+            sanitized = sanitized.Replace(invalidCharacter, "_"c)
+        Next invalidCharacter
+
+        sanitized = sanitized.Trim()
+
+        If sanitized.Length > 120 Then
+            sanitized = sanitized.Substring(0, 120)
+        End If
+
+        Return sanitized
+    End Function
+
+    Private Function GetUniqueFilePath(directoryPath As String, fileName As String) As String
+        Dim fullPath As String = Path.Combine(directoryPath, fileName)
+
+        If Not File.Exists(fullPath) Then
+            Return fullPath
+        End If
+
+        Dim fileNameWithoutExtension As String = Path.GetFileNameWithoutExtension(fileName)
+        Dim extension As String = Path.GetExtension(fileName)
+        Dim fileIndex As Integer = 1
+
+        Do
+            fullPath = Path.Combine(directoryPath, fileNameWithoutExtension & "_" & fileIndex.ToString() & extension)
+            fileIndex += 1
+        Loop While File.Exists(fullPath)
+
+        Return fullPath
+    End Function
 End Class
