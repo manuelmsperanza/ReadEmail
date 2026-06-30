@@ -479,7 +479,13 @@ Public Class EmailDisplayerForm
 
         mailItem.SaveAs(mailFilePath, OlSaveAsType.olMHTML)
 
-        Dim attachmentExportDirectory As String = Path.Combine(exportDirectory, fileBaseName)
+        Dim shortEntryId As String = mailItem.EntryID
+
+        If shortEntryId.Length > 8 Then
+            shortEntryId = shortEntryId.Substring(shortEntryId.Length - 8)
+        End If
+
+        Dim attachmentExportDirectory As String = Path.Combine(exportDirectory, shortEntryId & "_attachments")
 
         If Not Directory.Exists(attachmentExportDirectory) Then
             Directory.CreateDirectory(attachmentExportDirectory)
@@ -487,7 +493,7 @@ Public Class EmailDisplayerForm
 
         For attachmentIndex As Integer = 1 To mailItem.Attachments.Count
             Dim attachment As Outlook.Attachment = mailItem.Attachments.Item(attachmentIndex)
-            Dim attachmentFileName As String = GetUniqueFilePath(attachmentExportDirectory, attachmentIndex.ToString("00") & "_" & SanitizeFileName(attachment.FileName))
+            Dim attachmentFileName As String = GetUniqueFilePath(attachmentExportDirectory, SanitizeFileName(attachment.FileName))
 
             attachment.SaveAsFile(attachmentFileName)
         Next attachmentIndex
