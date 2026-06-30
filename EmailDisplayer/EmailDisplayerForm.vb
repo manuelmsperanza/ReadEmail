@@ -269,15 +269,30 @@ Public Class EmailDisplayerForm
 
         If Me.LogDataGridView.InvokeRequired Then
             Me.LogDataGridView.Invoke(Sub()
-                                          Me.LogDataGridView.Rows.Add(row0)
-                                          'Me.LogDataGridView.CurrentCell = Me.LogDataGridView.Rows(Me.LogDataGridView.Rows.Count - 1).Cells(0)
+                                          AddAndSelectLogDataGridViewRow(row0)
                                       End Sub)
         Else
-            Me.LogDataGridView.Rows.Add(row0)
-            'Me.LogDataGridView.CurrentCell = Me.LogDataGridView.Rows(Me.LogDataGridView.Rows.Count - 1).Cells(0)
+            AddAndSelectLogDataGridViewRow(row0)
         End If
 
         Console.WriteLine("exit addDataGridRow")
+    End Sub
+
+    Private Sub AddAndSelectLogDataGridViewRow(rowValues As String())
+        Dim rowIndex As Integer = Me.LogDataGridView.Rows.Add(rowValues)
+        Dim newRow As DataGridViewRow = Me.LogDataGridView.Rows(rowIndex)
+
+        Me.LogDataGridView.ClearSelection()
+        newRow.Selected = True
+
+        For Each cell As DataGridViewCell In newRow.Cells
+            If cell.Visible Then
+                Me.LogDataGridView.CurrentCell = cell
+                Exit For
+            End If
+        Next
+
+        Me.LogDataGridView.FirstDisplayedScrollingRowIndex = rowIndex
     End Sub
     Sub DisplayEmail()
         Dim thread As Thread
