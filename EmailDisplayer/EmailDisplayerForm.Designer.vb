@@ -34,6 +34,7 @@ Partial Class EmailDisplayerForm
         Me.SentOn = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.SenderName = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.Subject = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.ExportMailButton = New System.Windows.Forms.Button()
         Me.StatusStrip.SuspendLayout()
         CType(Me.LogDataGridView, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
@@ -56,7 +57,7 @@ Partial Class EmailDisplayerForm
         'ThreadToolStripStatusLabel
         '
         Me.ThreadToolStripStatusLabel.Name = "ThreadToolStripStatusLabel"
-        Me.ThreadToolStripStatusLabel.Size = New System.Drawing.Size(77, 17)
+        Me.ThreadToolStripStatusLabel.Size = New System.Drawing.Size(78, 17)
         Me.ThreadToolStripStatusLabel.Text = "Thread # of #"
         '
         'EmailToolStripStatusLabel
@@ -76,7 +77,7 @@ Partial Class EmailDisplayerForm
         '
         'SkipThreadButton
         '
-        Me.SkipThreadButton.Location = New System.Drawing.Point(930, 382)
+        Me.SkipThreadButton.Location = New System.Drawing.Point(930, 383)
         Me.SkipThreadButton.Name = "SkipThreadButton"
         Me.SkipThreadButton.Size = New System.Drawing.Size(75, 23)
         Me.SkipThreadButton.TabIndex = 3
@@ -129,11 +130,21 @@ Partial Class EmailDisplayerForm
         Me.Subject.Name = "Subject"
         Me.Subject.ReadOnly = True
         '
+        'ExportMailButton
+        '
+        Me.ExportMailButton.Location = New System.Drawing.Point(849, 383)
+        Me.ExportMailButton.Name = "ExportMailButton"
+        Me.ExportMailButton.Size = New System.Drawing.Size(75, 23)
+        Me.ExportMailButton.TabIndex = 5
+        Me.ExportMailButton.Text = "Export"
+        Me.ExportMailButton.UseVisualStyleBackColor = True
+        '
         'EmailDisplayerForm
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1103, 443)
+        Me.Controls.Add(Me.ExportMailButton)
         Me.Controls.Add(Me.LogDataGridView)
         Me.Controls.Add(Me.SkipThreadButton)
         Me.Controls.Add(Me.RefreshButton)
@@ -160,4 +171,5 @@ Partial Class EmailDisplayerForm
     Friend WithEvents SentOn As DataGridViewTextBoxColumn
     Friend WithEvents SenderName As DataGridViewTextBoxColumn
     Friend WithEvents Subject As DataGridViewTextBoxColumn
+    Friend WithEvents ExportMailButton As Button
 End Class

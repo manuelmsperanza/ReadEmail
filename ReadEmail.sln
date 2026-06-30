@@ -7,6 +7,8 @@ Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "ReadMeetings", "ReadEmail\R
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "EmailDisplayer", "EmailDisplayer\EmailDisplayer.vbproj", "{09948295-42B2-412B-8E1E-1B8DB380481C}"
 EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "MailArchiver", "MailArchiver\MailArchiver.vbproj", "{802E40DC-1EB6-4928-AC4E-B5502A672645}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{09948295-42B2-412B-8E1E-1B8DB380481C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{09948295-42B2-412B-8E1E-1B8DB380481C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{09948295-42B2-412B-8E1E-1B8DB380481C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{802E40DC-1EB6-4928-AC4E-B5502A672645}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{802E40DC-1EB6-4928-AC4E-B5502A672645}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{802E40DC-1EB6-4928-AC4E-B5502A672645}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{802E40DC-1EB6-4928-AC4E-B5502A672645}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

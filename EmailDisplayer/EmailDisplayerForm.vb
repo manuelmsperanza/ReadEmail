@@ -1,8 +1,10 @@
-﻿Imports Microsoft.Office.Interop.Outlook
+﻿Imports System.ComponentModel
+Imports System.Windows.Forms.VisualStyles.VisualStyleElement.Menu
+Imports Microsoft.Office.Interop.Outlook
 
 Public Class EmailDisplayerForm
 
-    Private olApp As Outlook.Application  'Riferimento processo OUTLOOK
+    WithEvents olApp As Outlook.Application  'Riferimento processo OUTLOOK
     Private olNs As Outlook.NameSpace     'Namespace utilizzato per navigare i pst, ottenere la sessione, gli elementi selezionati...
 
     WithEvents dgMail As Outlook.MailItem
@@ -10,6 +12,7 @@ Public Class EmailDisplayerForm
     Private sentOnlyToMe As Outlook.Folder
     Private sentToMe As Outlook.Folder
     Private vipFolder As Outlook.Folder
+    Private vipOutFolder As Outlook.Folder
     Private sentToMyGroup As Outlook.Folder
     Private verifyingFolder As Outlook.Folder
     Private activeFolder As Outlook.Folder
@@ -40,6 +43,10 @@ Public Class EmailDisplayerForm
 
             If curFolder.FolderPath.Equals(searchFolderPrefix & "VIP") Then
                 Me.vipFolder = curFolder
+            End If
+
+            If curFolder.FolderPath.Equals(searchFolderPrefix & "VIP out") Then
+                Me.vipOutFolder = curFolder
             End If
 
             If curFolder.FolderPath.Equals(searchFolderPrefix & "Sent To My Groups") Then
@@ -93,6 +100,17 @@ Public Class EmailDisplayerForm
 
         ToolStripStatusLabel.Text = "Loading items from " & Me.vipFolder.FolderPath
         For Each curItem In Me.vipFolder.Items
+            Dim conversationIdx = curItem.ConversationIndex.Substring(0, 44)
+            If Not threadMap.ContainsKey(conversationIdx) Then
+
+                Dim thread As New Thread(conversationIdx, 3)
+                threadMap.Add(conversationIdx, thread)
+                ThreadToolStripStatusLabel.Text = "Thread " & (Me.threadIdx + 1) & " of " & threadMap.Count
+            End If
+        Next
+
+        ToolStripStatusLabel.Text = "Loading items from " & Me.vipOutFolder.FolderPath
+        For Each curItem In Me.vipOutFolder.Items
             Dim conversationIdx = curItem.ConversationIndex.Substring(0, 44)
             If Not threadMap.ContainsKey(conversationIdx) Then
 
@@ -244,6 +262,22 @@ Public Class EmailDisplayerForm
 
     End Sub
 
+    Sub addDataGridRow(ByRef mailItem As Outlook.MailItem)
+        'Me.LogTextBox.AppendText(Now() & "> " & Me.dgMail.SentOn & " | " & Me.dgMail.SenderName & " | " & Me.dgMail.Subject & vbNewLine)
+        Dim row0 As String() = {mailItem.EntryID, Now(), mailItem.SentOn, mailItem.SenderName, mailItem.ConversationTopic}
+
+        If Me.LogDataGridView.InvokeRequired Then
+            Me.LogDataGridView.Invoke(Sub()
+                                          Me.LogDataGridView.Rows.Add(row0)
+                                          'Me.LogDataGridView.CurrentCell = Me.LogDataGridView.Rows(Me.LogDataGridView.Rows.Count - 1).Cells(0)
+                                      End Sub)
+        Else
+            Me.LogDataGridView.Rows.Add(row0)
+            'Me.LogDataGridView.CurrentCell = Me.LogDataGridView.Rows(Me.LogDataGridView.Rows.Count - 1).Cells(0)
+        End If
+
+        Console.WriteLine("exit addDataGridRow")
+    End Sub
     Sub DisplayEmail()
         Dim thread As Thread
         If threadIdx < Me.threads.Count Then
@@ -264,22 +298,8 @@ Public Class EmailDisplayerForm
             EmailToolStripStatusLabel.Text = "Email " & (Me.mailIdx + 1) & " of " & thread.Emails.Count
 
             Dim itemEntryId As String = email.EntryId
-
             Me.dgMail = Me.olNs.GetItemFromID(itemEntryId)
-
-
-            'Me.LogTextBox.AppendText(Now() & "> " & Me.dgMail.SentOn & " | " & Me.dgMail.SenderName & " | " & Me.dgMail.Subject & vbNewLine)
-            Dim row0 As String() = {itemEntryId, Now(), Me.dgMail.SentOn, Me.dgMail.SenderName, Me.dgMail.Subject}
-
-            If Me.LogDataGridView.InvokeRequired Then
-                Me.LogDataGridView.Invoke(Sub()
-                                              Me.LogDataGridView.Rows.Add(row0)
-                                              Me.LogDataGridView.CurrentCell = Me.LogDataGridView.Rows(Me.LogDataGridView.Rows.Count - 1).Cells(0)
-                                          End Sub)
-            Else
-                Me.LogDataGridView.Rows.Add(row0)
-                Me.LogDataGridView.CurrentCell = Me.LogDataGridView.Rows(Me.LogDataGridView.Rows.Count - 1).Cells(0)
-            End If
+            Me.addDataGridRow(Me.dgMail)
 
             Me.dgMail.Display()
             Me.mailIdx += 1
@@ -318,6 +338,7 @@ Public Class EmailDisplayerForm
             Dim itemEntryId As String = email.EntryId
 
             Dim mailItem As Outlook.MailItem = Me.olNs.GetItemFromID(itemEntryId)
+            addDataGridRow(mailItem)
             mailItem.UnRead = False
 
         Next idxEmail
@@ -337,4 +358,57 @@ Public Class EmailDisplayerForm
         End If
     End Sub
 
+    Private Sub EmailDisplayerForm_Closing(sender As Object, e As CancelEventArgs) Handles Me.Closing
+
+        If dgMail IsNot Nothing Then
+            Dim displayMail As Outlook.MailItem = dgMail
+            dgMail = Nothing
+            displayMail.UnRead = vbTrue
+        End If
+
+    End Sub
+
+    Private Sub olApp_NewMailEx(EntryIDCollection As String) Handles olApp.NewMailEx
+        ' EntryIDCollection may contain multiple EntryIDs separated by commas
+        Console.WriteLine("New mail received: " & EntryIDCollection)
+        Dim entryIDs() As String = EntryIDCollection.Split(","c)
+        For Each entryID In entryIDs
+
+
+            Dim mailItem As Object = Me.olNs.GetItemFromID(entryID)
+
+            Console.WriteLine(mailItem.MessageClass.ToString)
+            Console.WriteLine(mailItem.Parent.ToString)
+
+            'Try
+            '    Dim mailItem As Outlook.MailItem = TryCast(Me.olNs.GetItemFromID(entryID), Outlook.MailItem)
+            '    If mailItem IsNot Nothing Then
+            '        ' Do something with the new mail, e.g. add to grid or display
+            '        addDataGridRow(mailItem)
+            '        ' Optionally, display the mail
+            '        ' mailItem.Display()
+            '    End If
+            'Catch ex As Exception
+            '    ' Handle exceptions (e.g., item is not a MailItem)
+            'End Try
+        Next
+    End Sub
+
+    Private Sub ExportMailButton_Click(sender As Object, e As EventArgs) Handles ExportMailButton.Click
+        For Each row In LogDataGridView.SelectedRows
+
+            Dim entryId As String = row.Cells(0).Value.ToString()
+            Dim mailItem As Outlook.MailItem = Me.olNs.GetItemFromID(entryId)
+
+            Dim saveMailDialog As New SaveFileDialog()
+
+            For Each attachment In mailItem.Attachments
+
+            Next attachment
+
+        Next row
+
+
+
+    End Sub
 End Class
