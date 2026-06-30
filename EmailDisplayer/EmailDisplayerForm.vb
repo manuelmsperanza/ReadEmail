@@ -347,22 +347,54 @@ Public Class EmailDisplayerForm
     Private Sub SkipThreadButton_Click(sender As Object, e As EventArgs) Handles SkipThreadButton.Click
 
         'Me.LogTextBox.AppendText(Now() & "> SKIP" & vbNewLine)
+        If Me.threads Is Nothing OrElse Me.threadIdx < 0 OrElse Me.threadIdx >= Me.threads.Count Then
+            Return
+        End If
+
         Dim thread As Thread = Me.threads.Item(Me.threadIdx)
+        Dim startMailIdx As Integer = Math.Max(Me.mailIdx, 0)
 
-        For idxEmail = Me.mailIdx To thread.Emails.Count - 1 Step 1
-            Dim email As Email = thread.Emails.Item(idxEmail)
-            Dim itemEntryId As String = email.EntryId
+        If thread IsNot Nothing AndAlso thread.Emails IsNot Nothing AndAlso startMailIdx < thread.Emails.Count Then
+            For idxEmail As Integer = startMailIdx To thread.Emails.Count - 1 Step 1
+                Dim email As Email = thread.Emails.Item(idxEmail)
 
-            Dim mailItem As Outlook.MailItem = Me.olNs.GetItemFromID(itemEntryId)
-            addDataGridRow(mailItem)
-            mailItem.UnRead = False
+                If email Is Nothing OrElse String.IsNullOrWhiteSpace(email.EntryId) Then
+                    Continue For
+                End If
 
-        Next idxEmail
+                Dim mailItem As Outlook.MailItem = Nothing
+
+                Try
+                    mailItem = TryCast(Me.olNs.GetItemFromID(email.EntryId), Outlook.MailItem)
+                Catch ex As System.Exception
+                    Continue For
+                End Try
+
+                If mailItem Is Nothing Then
+                    Continue For
+                End If
+
+                addDataGridRow(mailItem)
+                mailItem.UnRead = False
+
+            Next idxEmail
+        End If
 
         Me.mailIdx = 0
         Me.threadIdx += 1
 
-        Me.dgMail.Close(OlInspectorClose.olDiscard)
+        If Me.dgMail IsNot Nothing Then
+            Dim displayMail As Outlook.MailItem = Me.dgMail
+            Me.dgMail = Nothing
+
+            Try
+                displayMail.Close(OlInspectorClose.olDiscard)
+            Catch ex As System.Exception
+                ToolStripStatusLabel.Text = "Unable to close the current email while skipping the thread."
+            End Try
+        End If
+
+        DisplayEmail()
 
     End Sub
 
