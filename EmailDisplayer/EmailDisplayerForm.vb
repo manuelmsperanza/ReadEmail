@@ -210,7 +210,7 @@ Public Class EmailDisplayerForm
         ToolStripStatusLabel.Text = "Loading items from " & inboxFolder.FolderPath
         For Each curItem In inboxFolder.Items
 
-            If curItem.MessageClass.ToString.StartsWith("IPM.Schedule.Meeting.") OrElse curItem.MessageClass.ToString.Equals("REPORT.IPM.Note.NDR") OrElse curItem.MessageClass.ToString.Equals("IPM.Note.Rules.OofTemplate.Microsoft") OrElse curItem.MessageClass.ToString.Equals("REPORT.IPM.Schedule.Meeting.Request.NDR") Then
+            If curItem.MessageClass.ToString.StartsWith("IPM.Schedule.Meeting.") OrElse curItem.MessageClass.ToString.StartsWith("REPORT.IPM.") OrElse curItem.MessageClass.ToString.Equals("IPM.Note.Rules.OofTemplate.Microsoft") OrElse curItem.MessageClass.ToString.Equals("IPM.Notification.Meeting") Then
 
                 'Dim conversationIdx = curItem.ConversationIndex.Substring(0, 44)
 
@@ -234,7 +234,7 @@ Public Class EmailDisplayerForm
 
                 Dim curMail As Outlook.MailItem = TryCast(curItem, Outlook.MailItem)
                 'If curMail Is Nothing Then
-                '    olNs.GetItemFromID(curItem.EntryID).Display()
+                '   olNs.GetItemFromID(curItem.EntryID).Display()
                 'End If
                 If curMail IsNot Nothing AndAlso curMail.UnRead Then
                     Dim conversationIdx = curMail.ConversationIndex.Substring(0, 44)
